@@ -30,8 +30,6 @@ class Subscriber(models.Model):
     meno = models.CharField(max_length=60, null=True)
     iban = models.CharField(max_length=60, null=True, unique=True)
     skupina = models.ManyToManyField(to=PayingGroup)
-    zaplatene_dokopy = models.DecimalField(null=True, max_digits=6, decimal_places=2, default=0)
-    ma_mat_zaplatene_dokopy = models.DecimalField(null=True, max_digits=6, decimal_places=2, default=0)
     dlh = models.DecimalField(null=True, max_digits=6, decimal_places=2, default=0)
 
     def __str__(self):
@@ -42,6 +40,7 @@ class Payment(models.Model):
     subscriber = models.ForeignKey(Subscriber, on_delete=models.CASCADE)
     datum_platby = models.DateField(null=True, default=now())
     platba_suma = models.DecimalField(null=True, max_digits=6, decimal_places=2, default=0)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.subscriber.meno) + " " + str(self.platba_suma) + "€ " + str(self.datum_platby)

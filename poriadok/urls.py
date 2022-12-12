@@ -16,13 +16,16 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
-from dashboard.views import DashboardView, SubscribersView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import path, include
+from dashboard.views import DashboardView
+
 
 
 urlpatterns = [
     path('', DashboardView.as_view(), name="dashboard"),
-    path('subscribers/', SubscribersView.as_view(), name="subscribers"),
     path('admin/', admin.site.urls),
-    path('logout/', LogoutView, name="logout"),
+    path('login', LoginView.as_view(template_name='dashboard/login.html'), name="login_url"),
+    path('logout/', LogoutView.as_view(next_page='dashboard'), name="logout"),
+    path('accounts/', include('django.contrib.auth.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

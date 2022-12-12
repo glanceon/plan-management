@@ -31,14 +31,21 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # 3rd party
+    'channels',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'dashboard.apps.DashboardConfig',
+
+    # Custom Apps
+    'dashboard',
 ]
+
+ASGI_APPLICATION = 'poriadok.asgi.application'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

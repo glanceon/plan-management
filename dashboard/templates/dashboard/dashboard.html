@@ -1,0 +1,111 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'dashboard.css' %}">
+{% if not user.is_authenticated %}
+  <div class="stranger">
+    <h1>LOGIN TO SEE THE CONTENT..</h1>
+  </div>
+{% endif %}
+{% if user.is_authenticated %}
+  <div class="dash-body">
+    <div class="index">
+      <div class="subs-index ii">
+        <h2>Predplatitelia</h2>
+        <ul>
+          {% for sub in subscriber%}
+          <li>{{sub.meno}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="services-index ii">
+        <h2>Služby</h2>
+        <ul>
+          {% for sluzba in service%}
+          <li>{{sluzba.cely_nazov_sluzby}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div id="display-content">
+      <!-- class="search" automagically makes an input a search field. -->
+      <input class="search" placeholder="Search" />
+      <!-- class="sort" automagically makes an element a sort buttons. The date-sort value decides what to sort by. -->
+      <button class="sort" data-sort="datum-platby">
+        Zoradiť podľa dátumu platby
+      </button>
+      <button class="sort" data-sort="meno">
+        Zoradiť podľa mena
+      </button>
+      <div id="payment-history" class="list">
+        
+        {% for payment in payments|dictsortreversed:"datum_platby" %}
+
+        <div class="payment ">
+          <div class="top-row">
+            <h2 class="meno">{{payment.subscriber.meno}}
+              <input class="payment-id" hidden value="{{payment.id}}">
+              <select name="list-of-users" id="list-of-users" onchange="paymentChanged(this)">
+                {% for sub in subscriber %}
+                {% if sub.meno == payment.subscriber.meno %}
+                <option value="{{sub.meno}}" selected>{{sub.meno}}</option>
+                {% else %}
+                <option value="{{sub.meno}}">{{sub.meno}}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+            </h2>
+            <h3 class="iban">{{payment.subscriber.iban}}</h3>
+          </div>
+          <div class="middle-row">
+            <div class="platba platba-text"><span class="payment-text">Prijatá platba</span> {{payment.platba_suma}}€</div>
+            <div class="dlh dlh-text"><span class="payment-text">Zostávajúci dlh</span> {{payment.subscriber.dlh}}€</div>
+          </div>
+          <div class="bottom-row">
+            <div class="tags">
+              {% for skupina in payment.subscriber.skupina.all %}
+              <span class="{{skupina.sluzba.nazov_sluzby}} tag">{{skupina.sluzba.cely_nazov_sluzby}}</span>
+              {% endfor %}
+            </div>
+            <div class="datum-platby"><span class="payment-text">Dátum Platby</span> {{ payment.datum_platby|date:'d/m/Y'}}</div>
+          </div>
+          </div>
+
+          {% endfor %}
+
+      </div>
+    </div>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
+    <script type="text/javascript">
+      let url = `ws://${window.location.host}/ws/socket-server/`
+      const PaymentSocket = new WebSocket(url)
+
+      PaymentSocket.onmessage = function(e){
+        let data = JSON.parse(e.data)
+        console.log('Data:',data)
+      }
+      
+      function paymentChanged(obj){
+        let changed_payment_sub = obj.value;
+        let changed_payment_id = obj.previousElementSibling.value
+        // console.log(obj.value, obj.previousElementSibling.value)
+        PaymentSocket.send(JSON.stringify({
+          'changed_payment_sub':changed_payment_sub,
+          'changed_payment_id':changed_payment_id
+        }))
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/');
+        xhr.send(null);
+      }
+
+      let options = {
+        valueNames: [ 'meno', 'datum-platby', 'tags' ]
+      };
+
+      let userList = new List('display-content', options);
+
+    </script>
+  </div>
+{% endif %}
+{% endblock %}

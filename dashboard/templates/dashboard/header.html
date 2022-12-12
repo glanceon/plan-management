@@ -3,13 +3,15 @@
 {% block header %}
   <header>
     <ul>
-      <li><a href="/">Dashboard</a></li>
       {% if user.is_authenticated %}
-      <li><a href="/subscribers">Subscribers</a></li>
+      <li><a href="/">Dashboard</a></li>
+      {% endif %}
+      {% if user.is_authenticated %}
+      <li><a href="/admin">Admin</a></li>
       {% endif %}
 
       {% if not user.is_authenticated %}
-      <li><a href="/admin">Login</a></li>
+      <li><a href="/login">Login</a></li>
       {% endif %}
 
       {% if user.is_authenticated %}

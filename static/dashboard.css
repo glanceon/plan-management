@@ -20,12 +20,33 @@
   width: 100%;
 }
 
-.categories{
-  min-width: 300px;
-  min-height: calc(100vh - 50px);
+ul{
+  list-style-type: none;
 }
 
-.display-content{
+.index{
+  min-width: 300px;
+  height: calc(100vh - 50px);
+  position: sticky;
+  left: 0;
+  top: 50px;
+  overflow-y: auto;
+}
+
+.subs-index, .services-index{
+  width: 100%;
+  height: auto;
+}
+
+.ii h2{
+  padding-left: 40px;
+}
+
+h2{
+  text-align: left;
+}
+
+#display-content{
   width: 100%;
   min-height: calc(100vh - 50px);
 
@@ -33,7 +54,7 @@
   padding: 0;
 }
 
-.payment-history{
+#payment-history{
   width: 100%;
 }
 
