@@ -1,5 +1,5 @@
 """
-ASGI config for poriadok project.
+ASGI config for core project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -14,11 +14,11 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 import dashboard.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'poriadok.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
 application = ProtocolTypeRouter({
-    'http':get_asgi_application(),
-    'websocket':AuthMiddlewareStack(
+    'http': get_asgi_application(),
+    'websocket': AuthMiddlewareStack(
         URLRouter(
             dashboard.routing.websocket_urlpatterns
         )

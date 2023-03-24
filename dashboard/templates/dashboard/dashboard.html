@@ -12,18 +12,18 @@
   <div class="dash-body">
     <div class="index">
       <div class="subs-index ii">
-        <h2>Predplatitelia</h2>
+        <h2>Subscribers</h2>
         <ul>
           {% for sub in subscriber%}
-          <li>{{sub.meno}}</li>
+          <li>{{sub.name}}</li>
           {% endfor %}
         </ul>
       </div>
       <div class="services-index ii">
-        <h2>Služby</h2>
+        <h2>Services</h2>
         <ul>
-          {% for sluzba in service%}
-          <li>{{sluzba.cely_nazov_sluzby}}</li>
+          {% for service in services%}
+          <li>{{service.whole_service_name}}</li>
           {% endfor %}
         </ul>
       </div>
@@ -32,26 +32,26 @@
       <!-- class="search" automagically makes an input a search field. -->
       <input class="search" placeholder="Search" />
       <!-- class="sort" automagically makes an element a sort buttons. The date-sort value decides what to sort by. -->
-      <button class="sort" data-sort="datum-platby">
-        Zoradiť podľa dátumu platby
+      <button class="sort" data-sort="date-of-payment">
+        Sort by date of payment
       </button>
-      <button class="sort" data-sort="meno">
-        Zoradiť podľa mena
+      <button class="sort" data-sort="name">
+        Sort by name
       </button>
       <div id="payment-history" class="list">
         
-        {% for payment in payments|dictsortreversed:"datum_platby" %}
+        {% for payment in payments|dictsortreversed:"date_of_payment" %}
 
         <div class="payment ">
           <div class="top-row">
-            <h2 class="meno">{{payment.subscriber.meno}}
+            <h2 class="name">{{payment.subscriber.name}}
               <input class="payment-id" hidden value="{{payment.id}}">
               <select name="list-of-users" id="list-of-users" onchange="paymentChanged(this)">
                 {% for sub in subscriber %}
-                {% if sub.meno == payment.subscriber.meno %}
-                <option value="{{sub.meno}}" selected>{{sub.meno}}</option>
+                {% if sub.name == payment.subscriber.name %}
+                <option value="{{sub.name}}" selected>{{sub.name}}</option>
                 {% else %}
-                <option value="{{sub.meno}}">{{sub.meno}}</option>
+                <option value="{{sub.name}}">{{sub.name}}</option>
                 {% endif %}
                 {% endfor %}
               </select>
@@ -59,16 +59,16 @@
             <h3 class="iban">{{payment.subscriber.iban}}</h3>
           </div>
           <div class="middle-row">
-            <div class="platba platba-text"><span class="payment-text">Prijatá platba</span> {{payment.platba_suma}}€</div>
-            <div class="dlh dlh-text"><span class="payment-text">Zostávajúci dlh</span> {{payment.subscriber.dlh}}€</div>
+            <div class="payment payment-text"><span class="payment-text">Recieved Payment</span> {{payment.payment_suma}}€</div>
+            <div class="debt debt-text"><span class="payment-text">Remaining debt</span> {{payment.subscriber.debt}}€</div>
           </div>
           <div class="bottom-row">
             <div class="tags">
-              {% for skupina in payment.subscriber.skupina.all %}
-              <span class="{{skupina.sluzba.nazov_sluzby}} tag">{{skupina.sluzba.cely_nazov_sluzby}}</span>
+              {% for group in payment.subscriber.group.all %}
+              <span class="{{group.service.service_name}} tag">{{group.service.whole_service_name}}</span>
               {% endfor %}
             </div>
-            <div class="datum-platby"><span class="payment-text">Dátum Platby</span> {{ payment.datum_platby|date:'d/m/Y'}}</div>
+            <div class="date-of-payment"><span class="payment-text">Date of Payment</span> {{ payment.date_of_payment|date:'d/m/Y'}}</div>
           </div>
           </div>
 
@@ -100,7 +100,7 @@
       }
 
       let options = {
-        valueNames: [ 'meno', 'datum-platby', 'tags' ]
+        valueNames: [ 'name', 'date-of-payment', 'tags' ]
       };
 
       let userList = new List('display-content', options);

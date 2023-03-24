@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-.stranger{
+.stranger {
   min-height: 80vh;
   width: 100%;
   font-size: 2rem;
@@ -11,7 +11,7 @@
   align-items: center;
 }
 
-.dash-body{
+.dash-body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -20,11 +20,11 @@
   width: 100%;
 }
 
-ul{
+ul {
   list-style-type: none;
 }
 
-.index{
+.index {
   min-width: 300px;
   height: calc(100vh - 50px);
   position: sticky;
@@ -33,20 +33,21 @@ ul{
   overflow-y: auto;
 }
 
-.subs-index, .services-index{
+.subs-index,
+.services-index {
   width: 100%;
   height: auto;
 }
 
-.ii h2{
+.ii h2 {
   padding-left: 40px;
 }
 
-h2{
+h2 {
   text-align: left;
 }
 
-#display-content{
+#display-content {
   width: 100%;
   min-height: calc(100vh - 50px);
 
@@ -54,11 +55,11 @@ h2{
   padding: 0;
 }
 
-#payment-history{
+#payment-history {
   width: 100%;
 }
 
-.payment{
+.payment {
   max-width: 467px;
   min-width: 375px;
   min-height: 180px;
@@ -66,7 +67,7 @@ h2{
 
   padding: 5px 8px;
   margin: 25px;
-  
+
   display: flex;
   justify-content: space-around;
   align-items: flex-start;
@@ -75,7 +76,7 @@ h2{
   border-radius: 4px;
 }
 
-.content-filter{
+.content-filter {
   width: initial;
   height: 50px;
   padding: 5px;
@@ -86,7 +87,7 @@ h2{
   align-items: center;
 }
 
-.top-row{
+.top-row {
   width: 100%;
   display: flex;
   justify-content: flex-start;
@@ -95,18 +96,18 @@ h2{
   padding-left: 20px;
 }
 
-.meno{
+.name {
   margin-bottom: 5px;
   font-size: 1.2em;
 }
 
-.iban{
+.iban {
   color: rgb(153, 170, 181);
   margin-top: 2px;
   font-size: 0.9em;
 }
 
-.middle-row{
+.middle-row {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
@@ -114,22 +115,22 @@ h2{
   width: 100%;
 }
 
-.platba-text{
+.payment-text {
   color: lawngreen;
 }
 
-.dlh-text{
+.debt-text {
   color: orangered;
 }
 
-.payment-text{
+.payment-text {
   font-size: 0.85em;
   font-style: italic;
 
   color: #e0e1dd;
 }
 
-.bottom-row{
+.bottom-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -137,60 +138,59 @@ h2{
   width: 100%;
 }
 
-.tag{
+.tag {
   font-size: 0.65em;
   padding: 2px;
   border-radius: 2px;
 }
 
-.netflix{
+.netflix {
   color: crimson;
   border: 1px solid crimson;
 }
 
-.spotify{
+.spotify {
   color: greenyellow;
   border: 1px solid greenyellow;
 }
 
-.nordvpn{
+.nordvpn {
   color: royalblue;
   border: 1px solid royalblue;
 }
 
-.subcategory{
+.subcategory {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
 
-  position: fixed
-  ;
+  position: fixed;
   max-width: 300px;
   min-height: calc(100vh - 50px);
 
   background-color: rgb(44, 47, 51);
-  color: 	rgb(153, 170, 181);
+  color: rgb(153, 170, 181);
 
   padding: 40px 20px;
 }
 
-.sub-title{
+.sub-title {
   text-align: center;
   margin-bottom: 10px;
 }
 
-.option{
+.option {
   display: flex;
   justify-content: flex-start;
 
   padding: 4px 0;
 }
 
-.option input:checked{
+.option input:checked {
   color: blue;
 }
 
-label{
+label {
   user-select: none;
 }
