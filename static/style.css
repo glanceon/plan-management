@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
-html,body{
+html,
+body {
 	margin: 0;
 	box-sizing: border-box;
 	background-color: rgb(44, 47, 51);
@@ -8,19 +9,19 @@ html,body{
 	font-family: 'Roboto Mono', monospace;
 }
 
-body{
+body {
 	min-height: 100vh;
 }
 
-a{
-	color: #7289da;
+a {
+	color: #829cfa;
 }
 
 /* width */
 ::-webkit-scrollbar {
-  width: 8px;
+	width: 8px;
 }
-  
+
 /* Track */
 ::-webkit-scrollbar-track {
 	background-color: #36393e;
@@ -29,6 +30,6 @@ a{
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-	background: #1e2124; 
+	background: #1e2124;
 	border-radius: 10px;
 }

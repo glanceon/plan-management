@@ -1,111 +1,119 @@
-{% extends "dashboard/base.html" %}
-{% load static %}
-
-{% block content %}
-<link rel="stylesheet" href="{% static 'dashboard.css' %}">
+{% extends "dashboard/base.html" %} {% load static %} {% block content %}
+<link rel="stylesheet" href="{% static 'dashboard.css' %}" />
 {% if not user.is_authenticated %}
-  <div class="stranger">
-    <h1>LOGIN TO SEE THE CONTENT..</h1>
-  </div>
-{% endif %}
-{% if user.is_authenticated %}
-  <div class="dash-body">
-    <div class="index">
-      <div class="subs-index ii">
-        <h2>Subscribers</h2>
-        <ul>
-          {% for sub in subscriber%}
-          <li>{{sub.name}}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div class="services-index ii">
-        <h2>Services</h2>
-        <ul>
-          {% for service in services%}
-          <li>{{service.whole_service_name}}</li>
-          {% endfor %}
-        </ul>
-      </div>
+<div class="stranger">
+  <h1>LOGIN TO SEE THE CONTENT..</h1>
+</div>
+{% endif %} {% if user.is_authenticated %}
+<div class="dash-body">
+  <div class="index">
+    <div class="subs-index ii">
+      <h2>Subscribers</h2>
+      <ul>
+        {% for sub in subscriber%}
+        <li class="subscriber"><span onClick=TextToSearch(this.textContent) class="name">{{sub.name}}</span>
+          {% if sub.debt <= 0 %}
+          <span class="positive-text">{{sub.debt}}€</span>
+          {% else %}
+          <span class="negative-text">{{sub.debt}}€</span>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
     </div>
-    <div id="display-content">
-      <!-- class="search" automagically makes an input a search field. -->
-      <input class="search" placeholder="Search" />
-      <!-- class="sort" automagically makes an element a sort buttons. The date-sort value decides what to sort by. -->
-      <button class="sort" data-sort="date-of-payment">
-        Sort by date of payment
-      </button>
-      <button class="sort" data-sort="name">
-        Sort by name
-      </button>
-      <div id="payment-history" class="list">
-        
-        {% for payment in payments|dictsortreversed:"date_of_payment" %}
+    <div class="services-index ii">
+      <h2>Services</h2>
+      <ul>
+        {% for service in services%}
+        <li style="color: #{{service.hex_color_without_hashtag}} ;">{{service.whole_service_name}}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div id="display-content">
+    <!-- class="search" automagically makes an input a search field. -->
+    <input type="search" class="search" placeholder="Search" />
+    <!-- class="sort" automagically makes an element a sort buttons. The date-sort value decides what to sort by. -->
+    <button class="sort" data-sort="date-of-payment">
+      Sort by date of payment
+    </button>
+    <button class="sort" data-sort="name">Sort by name</button>
+    <div id="payment-history" class="list">
+      {% for payment in payments|dictsortreversed:"date_of_payment" %}
 
-        <div class="payment ">
-          <div class="top-row">
-            <h2 class="name">{{payment.subscriber.name}}
-              <input class="payment-id" hidden value="{{payment.id}}">
-              <select name="list-of-users" id="list-of-users" onchange="paymentChanged(this)">
-                {% for sub in subscriber %}
-                {% if sub.name == payment.subscriber.name %}
-                <option value="{{sub.name}}" selected>{{sub.name}}</option>
-                {% else %}
-                <option value="{{sub.name}}">{{sub.name}}</option>
-                {% endif %}
-                {% endfor %}
-              </select>
+      <div class="payment">
+        <div class="delete-payment">
+          <span class="delete-button" onClick=DeletePayment(this)>X</span>
+          <input type="hidden" value="{{payment.id}}">
+        </div>
+        <div class="top-row">
+          <div class="user-info">
+            <h2 class="name">
+              {{payment.subscriber.name}}
             </h2>
             <h3 class="iban">{{payment.subscriber.iban}}</h3>
           </div>
-          <div class="middle-row">
-            <div class="payment payment-text"><span class="payment-text">Recieved Payment</span> {{payment.payment_suma}}€</div>
-            <div class="debt debt-text"><span class="payment-text">Remaining debt</span> {{payment.subscriber.debt}}€</div>
+        </div>
+        <div class="middle-row">
+          <div class="payment-text">
+            <span class="payment-text">Recieved Payment</span>
+            <span class="positive-text">{{payment.paid_amount}}€</span>
           </div>
-          <div class="bottom-row">
-            <div class="tags">
-              {% for group in payment.subscriber.group.all %}
-              <span class="{{group.service.service_name}} tag">{{group.service.whole_service_name}}</span>
-              {% endfor %}
-            </div>
-            <div class="date-of-payment"><span class="payment-text">Date of Payment</span> {{ payment.date_of_payment|date:'d/m/Y'}}</div>
+        </div>
+        <div class="bottom-row">
+          <div class="tags">
+            {% for group in payment.subscriber.group.all %}
+            <span
+              style="color: #{{group.service.hex_color_without_hashtag}}; border: 1px solid #{{group.service.hex_color_without_hashtag}} ; "
+              class="{{group.service.service_name}} tag"
+              >{{group.service.whole_service_name}}</span
+            >
+            {% endfor %}
           </div>
+          <div class="date-of-payment">
+            <span class="payment-text">Date of Payment</span> 
+            {{payment.date_of_payment|date:'d/m/Y'}}
           </div>
-
-          {% endfor %}
-
+        </div>
       </div>
+
+      {% endfor %}
     </div>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
-    <script type="text/javascript">
-      let url = `ws://${window.location.host}/ws/socket-server/`
-      const PaymentSocket = new WebSocket(url)
-
-      PaymentSocket.onmessage = function(e){
-        let data = JSON.parse(e.data)
-        console.log('Data:',data)
-      }
-      
-      function paymentChanged(obj){
-        let changed_payment_sub = obj.value;
-        let changed_payment_id = obj.previousElementSibling.value
-        // console.log(obj.value, obj.previousElementSibling.value)
-        PaymentSocket.send(JSON.stringify({
-          'changed_payment_sub':changed_payment_sub,
-          'changed_payment_id':changed_payment_id
-        }))
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/');
-        xhr.send(null);
-      }
-
-      let options = {
-        valueNames: [ 'name', 'date-of-payment', 'tags' ]
-      };
-
-      let userList = new List('display-content', options);
-
-    </script>
   </div>
-{% endif %}
-{% endblock %}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
+  <script type="text/javascript">
+    let url = `ws://${window.location.host}/ws/socket-server/`;
+    const PaymentSocket = new WebSocket(url);
+    const SearchBar = document.getElementsByClassName("search")[0];
+
+    PaymentSocket.onmessage = (e) => {
+      let data = JSON.parse(e.data);
+      console.log('Data:', data);
+    };
+    
+    const DeletePayment = (obj) => {
+      let payment_id = obj.nextElementSibling.value;
+      var res = window.confirm("Are you sure you want to delete this payment record?");
+      if(res){
+          // Put the deletion logic here
+          obj.parentElement.parentElement.style.display = 'none';
+          PaymentSocket.send(JSON.stringify({
+            'payment_id':payment_id
+          })) 
+      }       
+    }
+
+    let options = {
+      valueNames: ['name', 'date-of-payment', 'tags'],
+    };
+
+    let userList = new List('display-content', options);
+
+    const TextToSearch = (text) => {
+      SearchBar.value = text;
+      SearchBar.focus();
+      userList.search(SearchBar.value);
+    };
+  </script>
+</div>
+{% endif %} {% endblock %}

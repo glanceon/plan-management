@@ -22,6 +22,7 @@ from dashboard.views import DashboardView
 
 
 urlpatterns = [
+    path('__debug__/', include('debug_toolbar.urls')),
     path('', DashboardView.as_view(), name="dashboard"),
     path('admin/', admin.site.urls),
     path('login', LoginView.as_view(

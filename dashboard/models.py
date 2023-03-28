@@ -6,12 +6,6 @@ from django.db.models.signals import pre_save, post_save
 from django.contrib.auth.models import User
 
 
-# Managing person
-
-class Manager(models.Model):
-    manager = models.OneToOneField(User, on_delete=models.CASCADE)
-
-
 # Service (Netflix, Spotify, NordVPN..)
 
 
@@ -23,6 +17,8 @@ class Service(models.Model):
         max_length=60, null=True, default="Service name")
     hex_color_without_hashtag = models.CharField(
         max_length=6, default="ffffff")
+    manager = models.ForeignKey(
+        to=User, on_delete=models.CASCADE, default=None)
 
     def __str__(self):
         return self.whole_service_name
@@ -38,6 +34,8 @@ class PayingGroup(models.Model):
     next_payment_date = models.DateField(default=now())
     service = models.ForeignKey(
         to=Service, on_delete=models.CASCADE, default=None)
+    manager = models.ForeignKey(
+        to=User, on_delete=models.CASCADE, default=None)
 
     def __str__(self):
         return self.group_name
@@ -52,6 +50,8 @@ class Subscriber(models.Model):
     group = models.ManyToManyField(to=PayingGroup)
     debt = models.DecimalField(null=True, max_digits=6,
                                decimal_places=2, default=0)
+    manager = models.ForeignKey(
+        to=User, on_delete=models.CASCADE, default=None)
 
     def __str__(self):
         return self.name
@@ -64,6 +64,8 @@ class Payment(models.Model):
     date_of_payment = models.DateField(null=True, default=now())
     paid_amount = models.DecimalField(
         null=True, max_digits=6, decimal_places=2, default=0)
+    manager = models.ForeignKey(
+        to=User, on_delete=models.CASCADE, default=None)
 
     def __str__(self):
         return str(self.subscriber.name) + " " + str(self.paid_amount) + "€ " + str(self.date_of_payment)

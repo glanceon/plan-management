@@ -15,9 +15,14 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(DashboardView, self).get_context_data(*args, **kwargs)
-        context['payments'] = Payment.objects.all()
-        context['services'] = Service.objects.all()
-        context['subscriber'] = Subscriber.objects.all()
+        if not self.request.user.is_authenticated:
+            return context
+        context['payments'] = Payment.objects.defer(
+            'manager').filter(manager=self.request.user)
+        context['services'] = Service.objects.defer(
+            'manager').filter(manager=self.request.user)
+        context['subscriber'] = Subscriber.objects.defer('manager').filter(
+            manager=self.request.user)
         return context
 
 
