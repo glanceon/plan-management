@@ -33,7 +33,7 @@ def LogoutView(request):
 
 
 @receiver(post_save, sender=Payment)
-def UpdateDebt(sender, instance, **kwargs):
+def DecrementDebt(sender, instance, **kwargs):
     subscriber = Subscriber.objects.filter(id=instance.subscriber.id).first()
     subscriber.debt -= instance.paid_amount
     subscriber.save()

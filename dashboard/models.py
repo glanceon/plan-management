@@ -1,6 +1,8 @@
+from decimal import Decimal
 from django.db import models
 from django.db.models.signals import pre_save, post_save
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 
 
 # Service (Netflix, Spotify, NordVPN..)
@@ -64,8 +66,8 @@ class Payment(models.Model):
         Subscriber, on_delete=models.CASCADE, null=False)
     date_of_payment = models.DateField(
         auto_now_add=True)
-    paid_amount = models.DecimalField(
-        max_digits=6, decimal_places=2, default=0, null=False)
+    paid_amount = models.DecimalField(validators=[MinValueValidator(Decimal('0.00'))],
+                                      max_digits=6, decimal_places=2, default=0, null=False)
     manager = models.ForeignKey(
         to=User, on_delete=models.CASCADE, null=False)
 
