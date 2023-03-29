@@ -1,3 +1,4 @@
+import decimal
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
@@ -32,6 +33,7 @@ def LogoutView(request):
 
 
 @receiver(post_save, sender=Payment)
-def UpdateTotalPayed(sender, instance, **kwargs):
-    subscriber = Subscriber.objects.get(id=instance.subscriber.id)
-    return print(subscriber.name)
+def UpdateDebt(sender, instance, **kwargs):
+    subscriber = Subscriber.objects.filter(id=instance.subscriber.id).first()
+    subscriber.debt -= instance.paid_amount
+    subscriber.save()

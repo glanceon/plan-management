@@ -1,7 +1,4 @@
-from email.policy import default
-from enum import unique
 from django.db import models
-from django.utils.timezone import now
 from django.db.models.signals import pre_save, post_save
 from django.contrib.auth.models import User
 
@@ -12,13 +9,13 @@ from django.contrib.auth.models import User
 class Service(models.Model):
     id = models.AutoField(primary_key=True)
     service_name = models.CharField(
-        max_length=60, null=True, default="service")
+        max_length=60, default="service", null=False)
     whole_service_name = models.CharField(
-        max_length=60, null=True, default="Service name")
+        max_length=60, default="Service name", null=False)
     hex_color_without_hashtag = models.CharField(
-        max_length=6, default="ffffff")
+        max_length=6, default="ffffff", null=False)
     manager = models.ForeignKey(
-        to=User, on_delete=models.CASCADE, default=None)
+        to=User, on_delete=models.CASCADE, default=None, null=False)
 
     def __str__(self):
         return self.whole_service_name
@@ -28,14 +25,15 @@ class Service(models.Model):
 
 class PayingGroup(models.Model):
     id = models.AutoField(primary_key=True)
-    group_name = models.CharField(max_length=60, null=True)
+    group_name = models.CharField(
+        max_length=60, null=False, default="My group")
     monthly_cost = models.DecimalField(
-        null=True, max_digits=6, decimal_places=2)
-    next_payment_date = models.DateField(default=now())
+        max_digits=6, decimal_places=2, null=False, default="0")
+    next_payment_date = models.DateField(auto_now_add=True)
     service = models.ForeignKey(
-        to=Service, on_delete=models.CASCADE, default=None)
+        to=Service, on_delete=models.CASCADE, default=None, null=False)
     manager = models.ForeignKey(
-        to=User, on_delete=models.CASCADE, default=None)
+        to=User, on_delete=models.CASCADE, default=None, null=False)
 
     def __str__(self):
         return self.group_name
@@ -45,13 +43,15 @@ class PayingGroup(models.Model):
 
 class Subscriber(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=60, null=True)
-    iban = models.CharField(max_length=60, null=True, unique=True)
+    name = models.CharField(
+        max_length=60, default="Subscriber Name", null=False)
+    iban = models.CharField(max_length=60, unique=True,
+                            default="Subscriber Iban", null=False)
     group = models.ManyToManyField(to=PayingGroup)
-    debt = models.DecimalField(null=True, max_digits=6,
-                               decimal_places=2, default=0)
+    debt = models.DecimalField(
+        max_digits=6, decimal_places=2, default=0, null=False)
     manager = models.ForeignKey(
-        to=User, on_delete=models.CASCADE, default=None)
+        to=User, on_delete=models.CASCADE, default=None, null=False)
 
     def __str__(self):
         return self.name
@@ -60,15 +60,17 @@ class Subscriber(models.Model):
 
 
 class Payment(models.Model):
-    subscriber = models.ForeignKey(Subscriber, on_delete=models.CASCADE)
-    date_of_payment = models.DateField(null=True, default=now())
+    subscriber = models.ForeignKey(
+        Subscriber, on_delete=models.CASCADE, null=False)
+    date_of_payment = models.DateField(
+        auto_now_add=True)
     paid_amount = models.DecimalField(
-        null=True, max_digits=6, decimal_places=2, default=0)
+        max_digits=6, decimal_places=2, default=0, null=False)
     manager = models.ForeignKey(
-        to=User, on_delete=models.CASCADE, default=None)
+        to=User, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return str(self.subscriber.name) + " " + str(self.paid_amount) + "€ " + str(self.date_of_payment)
+        return self.subscriber.name + " " + str(self.paid_amount) + "€ " + str(self.date_of_payment)
 
 
 def payment_post_save(*args, **kwargs):
