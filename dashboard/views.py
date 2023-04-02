@@ -3,7 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete
 from django.core.signals import request_finished
 from django.dispatch import receiver
 from .models import Subscriber, Payment, Service
@@ -30,10 +30,3 @@ class DashboardView(TemplateView):
 def LogoutView(request):
     logout(request)
     # Redirect to a success page.
-
-
-@receiver(post_save, sender=Payment)
-def DecrementDebt(sender, instance, **kwargs):
-    subscriber = Subscriber.objects.filter(id=instance.subscriber.id).first()
-    subscriber.debt -= instance.paid_amount
-    subscriber.save()

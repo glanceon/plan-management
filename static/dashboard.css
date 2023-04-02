@@ -58,6 +58,17 @@ h2 {
 
   background-color: #424549;
   padding: 0;
+
+  display: flex;
+  flex-direction: row;
+}
+
+.view-payments {
+  width: 60%;
+}
+
+.sidebar {
+  width: 40%;
 }
 
 #payment-history {
@@ -214,4 +225,5 @@ h2 {
 
 label {
   user-select: none;
+  -webkit-user-select: none;
 }

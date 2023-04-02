@@ -31,54 +31,74 @@
     </div>
   </div>
   <div id="display-content">
-    <!-- class="search" automagically makes an input a search field. -->
-    <input type="search" class="search" placeholder="Search" />
-    <!-- class="sort" automagically makes an element a sort buttons. The date-sort value decides what to sort by. -->
-    <button class="sort" data-sort="date-of-payment">
-      Sort by date of payment
-    </button>
-    <button class="sort" data-sort="name">Sort by name</button>
-    <div id="payment-history" class="list">
-      {% for payment in payments|dictsortreversed:"date_of_payment" %}
-
-      <div class="payment">
-        <div class="delete-payment">
-          <span class="delete-button" onClick=DeletePayment(this)>X</span>
-          <input type="hidden" value="{{payment.id}}">
-        </div>
-        <div class="top-row">
-          <div class="user-info">
-            <h2 class="name">
-              {{payment.subscriber.name}}
-            </h2>
-            <h3 class="iban">{{payment.subscriber.iban}}</h3>
+    <div class="view-payments">
+      <!-- class="search" automagically makes an input a search field. -->
+      <input type="search" class="search" placeholder="Search" />
+      <!-- class="sort" automagically makes an element a sort buttons. The date-sort value decides what to sort by. -->
+      <button type="button" class="sort" data-sort="date-of-payment">
+        Sort by date of payment
+      </button>
+      <button type="button" class="sort" data-sort="name">Sort by name</button>
+      <div id="payment-history" class="list">
+        {% for payment in payments|dictsortreversed:"date_of_payment" %}
+        <div class="payment">
+          <div class="delete-payment">
+            <span class="delete-button" onClick=DeletePayment(this)>X</span>
+            <input type="hidden" value="{{payment.id}}">
+            <input type="hidden" value="{{payment.subscriber.id}}">
+          </div>
+          <div class="top-row">
+            <div class="user-info">
+              <h2 class="name">
+                {{payment.subscriber.name}}
+              </h2>
+              <h3 class="iban">{{payment.subscriber.iban}}</h3>
+            </div>
+          </div>
+          <div class="middle-row">
+            <div class="payment-text">
+              <span class="payment-text">Recieved Payment</span>
+              <span class="positive-text">{{payment.paid_amount}}€</span>
+            </div>
+          </div>
+          <div class="bottom-row">
+            <div class="tags">
+              {% for group in payment.subscriber.group.all %}
+              <span
+                style="color: #{{group.service.hex_color_without_hashtag}}; border: 1px solid #{{group.service.hex_color_without_hashtag}} ; "
+                class="{{group.service.service_name}} tag"
+                >{{group.service.whole_service_name}}</span
+              >
+              {% endfor %}
+            </div>
+            <div class="date-of-payment">
+              <span class="payment-text">Date of Payment</span>
+              {{payment.date_of_payment|date:'d/m/Y'}}
+            </div>
           </div>
         </div>
-        <div class="middle-row">
-          <div class="payment-text">
-            <span class="payment-text">Recieved Payment</span>
-            <span class="positive-text">{{payment.paid_amount}}€</span>
-          </div>
-        </div>
-        <div class="bottom-row">
-          <div class="tags">
-            {% for group in payment.subscriber.group.all %}
-            <span
-              style="color: #{{group.service.hex_color_without_hashtag}}; border: 1px solid #{{group.service.hex_color_without_hashtag}} ; "
-              class="{{group.service.service_name}} tag"
-              >{{group.service.whole_service_name}}</span
-            >
-            {% endfor %}
-          </div>
-          <div class="date-of-payment">
-            <span class="payment-text">Date of Payment</span> 
-            {{payment.date_of_payment|date:'d/m/Y'}}
-          </div>
-        </div>
+        {% endfor %}
       </div>
-
-      {% endfor %}
     </div>
+  <div class="sidebar">
+  <div class="add-payment">
+    <h2>Add A Payment</h2>
+    <div class="form">
+      <label for="subscribers">Choose a subscriber:</label>
+      <select class="select-subscriber" name="subscribers" id="subscribers">
+        {% for sub in subscriber %}
+        <option value="{{sub}}">{{sub|title}}</option>
+        {% endfor %}
+      </select>
+      <div class="paid-amount">
+        <label for="sum">Paid amount: </label>
+        <input type="number" id="sum" placeholder="0.00" min="0"></input>
+      </div>
+      <input class="manager" type="hidden" value="{{request.user}}">
+      <input type="button" value="Create Payment" onclick="CreatePayment(this.parentElement)">
+    </div>
+  </div>
+  </div>
   </div>
   <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
   <script type="text/javascript">
@@ -91,16 +111,37 @@
       console.log('Data:', data);
     };
     
+    const CreatePayment = (form) => {
+      let subscriber = form.querySelector('.select-subscriber')[0].value
+      let manager = form.querySelector('.manager').value
+      let paid_amount = document.getElementById('sum').value
+      PaymentSocket.send(JSON.stringify({
+        'event':'Create Payment',
+        'eventData':{
+          'subscriber':subscriber,
+          'paid_amount':paid_amount,
+          'manager':manager,
+        },
+      }))
+      window.location.reload()
+    }
+
     const DeletePayment = (obj) => {
       let payment_id = obj.nextElementSibling.value;
+      let subscriber_id = obj.nextElementSibling.nextElementSibling.value;
       var res = window.confirm("Are you sure you want to delete this payment record?");
       if(res){
           // Put the deletion logic here
           obj.parentElement.parentElement.style.display = 'none';
           PaymentSocket.send(JSON.stringify({
-            'payment_id':payment_id
+            'event':'Delete Payment',
+            'eventData':{
+              'payment_id':payment_id,
+              'subscriber_id':subscriber_id,
+            }
           })) 
-      }       
+          window.location.reload()
+      }
     }
 
     let options = {
