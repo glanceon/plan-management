@@ -39,45 +39,54 @@
         Sort by date of payment
       </button>
       <button type="button" class="sort" data-sort="name">Sort by name</button>
-      <div id="payment-history" class="list">
-        {% for payment in payments|dictsortreversed:"date_of_payment" %}
-        <div class="payment">
-          <div class="delete-payment">
-            <span class="delete-button" onClick=DeletePayment(this)>X</span>
-            <input type="hidden" value="{{payment.id}}">
-            <input type="hidden" value="{{payment.subscriber.id}}">
-          </div>
-          <div class="top-row">
-            <div class="user-info">
-              <h2 class="name">
-                {{payment.subscriber.name}}
-              </h2>
-              <h3 class="iban">{{payment.subscriber.iban}}</h3>
-            </div>
-          </div>
-          <div class="middle-row">
-            <div class="payment-text">
-              <span class="payment-text">Recieved Payment</span>
-              <span class="positive-text">{{payment.paid_amount}}€</span>
-            </div>
-          </div>
-          <div class="bottom-row">
-            <div class="tags">
-              {% for group in payment.subscriber.group.all %}
-              <span
-                style="color: #{{group.service.hex_color_without_hashtag}}; border: 1px solid #{{group.service.hex_color_without_hashtag}} ; "
-                class="{{group.service.service_name}} tag"
-                >{{group.service.whole_service_name}}</span
-              >
-              {% endfor %}
-            </div>
-            <div class="date-of-payment">
-              <span class="payment-text">Date of Payment</span>
-              {{payment.date_of_payment|date:'d/m/Y'}}
-            </div>
-          </div>
-        </div>
+      <div id="payment-history" class="list" 
+      x-data="{ payments: [
+        {% for payment in payments %}
+        { 
+          id: {{payment.id}}, 
+          paid_amount: {{payment.paid_amount}}, 
+          subscriber_id: {{payment.subscriber.id}}, 
+          subscriber_name: '{{payment.subscriber.name}}', 
+          subscriber_iban: '{{payment.subscriber.iban}}',
+          subscriber_services: [ {% for group in payment.subscriber.group.all  %} 
+                              {id:'{{group.service.id}}',name:'{{group.service.service_name}}'},
+                              {% endfor %} ],
+          payment_date: '{{payment.date_of_payment}}'
+        },
         {% endfor %}
+      ]}"
+      >
+        <template x-for="(payment, index) in payments" :key="index">
+          <div class="payment">
+                <div class="delete-payment">
+                  <span class="delete-button" onClick=DeletePayment(this)>X</span>
+                  <input type="hidden" value="{{payment.id}}">
+                  <input type="hidden" value="{{payment.subscriber.id}}">
+                </div>
+                <div class="top-row">
+                  <div class="user-info">
+                    <h2 class="name" x-text="payment.subscriber_name">
+                    </h2>
+                    <h3 class="iban" x-text="payment.subscriber_iban"></h3>
+                  </div>
+                </div>
+                <div class="middle-row">
+                  <div class="payment-text">
+                    <span class="payment-text">Recieved Payment</span>
+                    <span class="positive-text" x-text="payment.paid_amount + '€'"></span>
+                  </div>
+                </div>
+                <div class="bottom-row">
+                  <template class="tags" x-for="group in payment.subscriber_services" :key="group.id">
+                    <span class="tag" x-text="group.name"></span
+                    >
+                  </template>
+                  <div class="date-of-payment">
+                    <span class="payment-text" x-text="payment.payment_date">Date of Payment</span>
+                  </div>
+                </div>
+            </div>
+        </template>
       </div>
     </div>
   <div class="sidebar">
@@ -100,11 +109,14 @@
   </div>
   </div>
   </div>
+  <script src="//unpkg.com/alpinejs" defer></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
   <script type="text/javascript">
     let url = `ws://${window.location.host}/ws/socket-server/`;
     const PaymentSocket = new WebSocket(url);
     const SearchBar = document.getElementsByClassName("search")[0];
+
+
 
     PaymentSocket.onmessage = (e) => {
       let data = JSON.parse(e.data);
