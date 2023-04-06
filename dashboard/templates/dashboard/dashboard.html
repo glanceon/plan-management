@@ -11,7 +11,7 @@
       <h2>Subscribers</h2>
       <ul>
         {% for sub in subscriber%}
-        <li class="subscriber"><span onClick=TextToSearch(this.textContent) class="name">{{sub.name}}</span>
+        <li class="subscriber"><span onClick=TextToSearch(this.textContent) class="sub-name">{{sub.name}}</span>
           {% if sub.debt <= 0 %}
           <span class="positive-text">{{sub.debt}}€</span>
           {% else %}
@@ -32,14 +32,8 @@
   </div>
   <div id="display-content">
     <div class="view-payments">
-      <!-- class="search" automagically makes an input a search field. -->
-      <input type="search" class="search" placeholder="Search" />
-      <!-- class="sort" automagically makes an element a sort buttons. The date-sort value decides what to sort by. -->
-      <button type="button" class="sort" data-sort="date-of-payment">
-        Sort by date of payment
-      </button>
-      <button type="button" class="sort" data-sort="name">Sort by name</button>
-      <div id="payment-history" class="list" 
+      <input id="search" type="search" class="search" onkeyup="SearchPayments()" placeholder="Search" />
+      <div id="payment-history" class="list"
       x-data="{ payments: [
         {% for payment in payments %}
         { 
@@ -56,8 +50,8 @@
         {% endfor %}
       ]}"
       >
-        <template x-for="(payment, index) in payments" :key="index">
-          <div class="payment">
+        <template x-for="(payment, index) in payments" :key="index" class="name" >
+          <li class="payment">
                 <div class="delete-payment">
                   <span class="delete-button" onClick=DeletePayment(this)>X</span>
                   <input type="hidden" value="{{payment.id}}">
@@ -110,7 +104,6 @@
   </div>
   </div>
   <script src="//unpkg.com/alpinejs" defer></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
   <script type="text/javascript">
     let url = `ws://${window.location.host}/ws/socket-server/`;
     const PaymentSocket = new WebSocket(url);
@@ -121,6 +114,7 @@
     PaymentSocket.onmessage = (e) => {
       let data = JSON.parse(e.data);
       console.log('Data:', data);
+
     };
     
     const CreatePayment = (form) => {
@@ -160,13 +154,29 @@
       valueNames: ['name', 'date-of-payment', 'tags'],
     };
 
-    let userList = new List('display-content', options);
-
     const TextToSearch = (text) => {
       SearchBar.value = text;
       SearchBar.focus();
-      userList.search(SearchBar.value);
+      SearchPayments();
     };
+
+    const SearchPayments = () => {
+      // Declare variables
+      var filter, ul, li, a, i;
+      filter = SearchBar.value.toUpperCase();
+      ul = document.getElementById("payment-history");
+      li = ul.getElementsByTagName("li");
+
+      // Loop through all list items, and hide those who don't match the search query
+      for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByClassName("name")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+          li[i].style.display = "";
+        } else {
+          li[i].style.display = "none";
+        }
+      }
+    }
   </script>
 </div>
 {% endif %} {% endblock %}

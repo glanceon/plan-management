@@ -47,5 +47,15 @@ class PaymentConsumer(WebsocketConsumer):
             payment = Payment(subscriber=subscriber,
                               paid_amount=paid_amount, manager=manager)
             payment.save()
+            self.send(text_data=json.dumps({
+                'type': 'payment_created',
+                'data': [{'id': payment.id,
+                          'paid_amount': payment.paid_amount,
+                          'subscriber_id': payment.subscriber.id,
+                          'subscriber_name': payment.subscriber.name,
+                          'subscriber_iban': payment.subscriber.iban,
+                          'subscriber_services': payment.subscriber.group,
+                          'payment_date': payment.date_of_payment}]
+            }))
             subscriber.debt -= Decimal(payment.paid_amount)
             subscriber.save()
